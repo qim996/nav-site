@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻舟导航 · 个人导航</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap">
+<link rel="preconnect" href="https://icon.horse">
+<link rel="preconnect" href="https://api.quickso.cn">
+<style>
+  :root{
+    --bg:#EEEBE4;
+    --surface:#F7F4ED;
+    --surface-2:#E7E2D8;
+    --primary:#6E7A72;
+    --primary-deep:#59645D;
+    --primary-soft:#DDE2DA;
+    --ink:#3B3A36;
+    --ink-2:#6E6A61;
+    --ink-3:#9A958B;
+    --line:#DDD8CC;
+    --success:#7A8B7D;
+    --danger:#B36B62;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(59,58,54,.05),0 10px 28px -14px rgba(59,58,54,.16);
+    --font:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--font);
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.6;
+    min-height:100vh;
+  }
+  button{font-family:inherit;cursor:pointer}
+  input,textarea,select{font-family:inherit;font-size:14px;color:var(--ink)}
+  a{color:inherit;text-decoration:none}
+  .num{font-variant-numeric:tabular-nums}
+  /* ===== 顶栏 ===== */
+  .topbar{background:transparent}
+  .topbar-inner{
+    max-width:1080px;margin:0 auto;padding:0 20px;
+    height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,#8FA094,#6E7A72);
+    display:flex;align-items:center;justify-content:center;color:#fff;flex:none;
+  }
+  .topnav{display:flex;align-items:center;gap:6px}
+  .topnav button{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 14px;border-radius:10px;border:none;background:transparent;
+    font-size:14px;color:var(--ink-2);font-weight:500;
+    transition:background .15s,color .15s;
+  }
+  .topnav button:hover{background:var(--surface-2);color:var(--ink)}
+  .topnav button.active{background:var(--primary-soft);color:var(--primary);font-weight:600}
+  .topnav .icon-btn-only{padding:8px}
+  /* ===== 主容器 ===== */
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 64px}
+  /* ===== Hero ===== */
+  .hero{padding:26px 0 30px;text-align:center}
+  .clock-time{font-size:clamp(50px,9vw,76px);font-weight:900;letter-spacing:3px;line-height:1.08}
+  .clock-date{color:var(--ink-2);font-size:16px;margin-top:8px;letter-spacing:1px}
+  .weather{
+    display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;
+    padding:7px 18px;font-size:14px;color:var(--ink-2);
+  }
+  .weather .w-name{font-weight:600;color:var(--ink)}
+  .weather .w-temp{font-weight:800;color:var(--primary);font-size:17px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--success);display:inline-block}
+  .search-box{
+    display:flex;align-items:center;gap:10px;max-width:560px;margin:22px auto 0;
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    padding:6px 6px 6px 16px;box-shadow:0 8px 24px -14px rgba(15,23,42,.18);
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .search-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 4px rgba(15,118,110,.12)}
+  .search-ico{width:18px;height:18px;color:var(--ink-3);flex:none}
+  .search-box input{
+    flex:1;min-width:0;border:none;background:transparent;outline:none;
+    font-size:15px;color:var(--ink);font-family:inherit;
+  }
+  .search-box input::placeholder{color:var(--ink-3)}
+  .search-box .btn{border-radius:10px;padding:9px 18px}
+  .announce{
+    display:flex;align-items:center;gap:8px;margin:0 0 14px;
+    background:linear-gradient(135deg, rgba(158,172,234,.14), rgba(158,172,234,.28));
+    border:1px solid rgba(158,172,234,.5);border-radius:12px;
+    padding:10px 14px;font-size:14px;color:var(--ink);
+  }
+  .cat-bar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+  .cat-bar button{
+    border:1px solid var(--line);background:var(--surface);color:var(--ink-2);
+    border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;transition:.15s;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .cat-bar button:hover{color:var(--ink)}
+  .cat-bar button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+  .cat-bar .cat-dot{width:7px;height:7px;border-radius:50%;flex:none}
+  /* ===== 卡片网格 ===== */
+  .section-title{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    margin:10px 0 16px;
+  }
+  .section-title h2{font-size:18px;font-weight:700}
+  .section-title .right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .section-title span.count{font-size:13px;color:var(--ink-3)}
+  .goods-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(216px,1fr));
+    gap:14px;
+  }
+  .card{
+    position:relative;overflow:hidden;
+    background:var(--cbg,#C8C3B8);
+    border-radius:16px;box-shadow:var(--shadow);
+    transition:transform .15s,box-shadow .15s;
+    color:var(--cfg,#4A4742);
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    touch-action:pan-y;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -16px rgba(59,58,54,.3)}
+  .card:hover .card-icon{transform:scale(1.07)}
+  .card-link{position:absolute;inset:0;z-index:1;border-radius:16px}
+  .card-body{display:flex;align-items:center;gap:12px;padding:14px;position:relative}
+  .card-char{
+    position:absolute;right:10px;top:-2px;
+    font-size:54px;font-weight:900;line-height:1;opacity:.14;
+    pointer-events:none;user-select:none;
+    color:var(--cfg,#4A4742);
+  }
+  .card-icon{
+    position:relative;width:46px;height:46px;flex:none;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.62);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.65);
+    overflow:hidden;
+    transition:transform .15s ease;
+  }
+  .icon-char{font-size:20px;font-weight:900;line-height:1;color:var(--cfg,#4A4742)}
+  .card-icon .favicon{
+    position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);
+    object-fit:contain;border-radius:7px;display:block;
+  }
+  .card-info{flex:1;min-width:0}
+  .card-line1{display:flex;align-items:center;gap:8px;min-width:0}
+  .card-name{font-size:16px;font-weight:800;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .card-tag{
+    flex:none;font-size:11px;padding:2px 9px;border-radius:999px;
+    background:rgba(255,255,255,.42);color:var(--cfg,#4A4742);
+  }
+  .card-desc{opacity:.78;font-size:12.5px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    border:none;border-radius:10px;padding:0 16px;
+    font-size:14px;font-weight:600;color:#fff;background:var(--primary);
+    transition:background .15s,transform .05s;
+    min-height:40px;white-space:nowrap;
+  }
+  .btn:hover{background:var(--primary-deep)}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line)}
+  .btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+  .btn.sm{padding:6px 12px;font-size:13px;min-height:34px;border-radius:9px}
+  .btn.danger{background:transparent;color:var(--danger);border:1px solid #F3C8C8}
+  .btn.danger:hover{background:#FEF2F2}
+  /* 卡片操作按钮（仅编辑模式显示） */
+  .card-ops{
+    position:absolute;top:8px;right:8px;z-index:5;
+    display:flex;gap:6px;
+  }
+  .card-ops button{
+    width:28px;height:28px;border:none;border-radius:50%;
+    background:rgba(255,255,255,.94);color:var(--cfg,#4A4742);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(0,0,0,.16);
+    cursor:pointer;
+  }
+  .card-ops button:hover{background:#fff;transform:scale(1.06)}
+  .card-ops button:active{transform:scale(.94)}
+  .card-ops button.del:hover{color:var(--danger)}
+  /* 拖动中的卡片（ghost，固定定位跟随指针，样式内联设置） */
+  .card.dragging{
+    pointer-events:none;opacity:.95;
+    box-shadow:0 22px 46px -14px rgba(15,23,42,.42);
+  }
+  /* 拖动时的原位占位（静态，不参与排序） */
+  .card-ph{
+    background:rgba(255,255,255,.35);
+    border:1.5px dashed rgba(110,122,114,.4);
+    border-radius:16px;
+  }
+  /* ===== 空态 ===== */
+  .empty{
+    text-align:center;padding:56px 20px;color:var(--ink-3);
+    background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty strong{display:block;color:var(--ink-2);font-size:15px;margin-top:10px}
+  /* ===== 弹层 ===== */
+  .mask{
+    position:fixed;inset:0;z-index:60;
+    background:rgba(17,24,39,.45);
+    display:none;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .mask.open{display:flex}
+  .modal{
+    width:100%;max-width:440px;max-height:92vh;overflow:auto;
+    background:var(--surface);border-radius:20px;
+    box-shadow:0 24px 60px -20px rgba(15,23,42,.4);
+    animation:pop .18s ease-out;
+  }
+  .modal.wide{max-width:560px}
+  @keyframes pop{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px;border-bottom:1px solid var(--line);
+  }
+  .modal-head h3{font-size:16px;font-weight:700}
+  .icon-btn{
+    width:32px;height:32px;border-radius:8px;border:none;background:transparent;
+    color:var(--ink-3);display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{background:var(--surface-2);color:var(--ink)}
+  .modal-body{padding:20px}
+  .confirm-ico{
+    width:48px;height:48px;margin:0 auto 14px;border-radius:50%;
+    background:#FBE9E7;color:var(--danger);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:900;line-height:1;
+  }
+  /* ===== 表单 ===== */
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+  .field input,.field textarea,.field select{
+    width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+    background:var(--surface);transition:border-color .15s,box-shadow .15s;
+  }
+  .field input:focus,.field textarea:focus,.field select:focus{
+    outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.12);
+  }
+  .field textarea{resize:vertical;min-height:80px}
+  /* 自定义分类下拉（替代原生 select，支持圆角样式） */
+  .dd{position:relative}
+  .dd-trigger{
+    width:100%;height:40px;display:flex;align-items:center;gap:8px;
+    border:1px solid var(--line);border-radius:10px;background:var(--surface);
+    padding:0 12px;font-size:14px;color:var(--ink);cursor:pointer;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .dd-trigger:hover{border-color:var(--primary)}
+  .dd-trigger.open{border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.12)}
+  .dd-dot{width:10px;height:10px;border-radius:50%;flex:none;display:inline-block}
+  .dd-label{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dd-chev{width:16px;height:16px;color:var(--ink-3);transition:transform .15s;flex:none}
+  .dd-trigger.open .dd-chev{transform:rotate(180deg)}
+  .dd-menu{
+    position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:60;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 16px 36px -12px rgba(15,23,42,.28);
+    padding:6px;display:none;max-height:240px;overflow:auto;
+  }
+  .dd-menu.open{display:block}
+  .dd-opt{
+    display:flex;align-items:center;gap:8px;width:100%;
+    padding:9px 10px;border:none;border-radius:6px;background:transparent;
+    font-size:14px;color:var(--ink);cursor:pointer;text-align:left;
+  }
+  .dd-opt:hover{background:var(--surface-2)}
+  .dd-opt.sel{background:var(--primary-soft);color:var(--primary);font-weight:600}
+  .dd-opt .check{margin-left:auto;color:var(--primary)}
+  .dd-empty{padding:10px;text-align:center;color:var(--ink-3);font-size:13px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .row{display:flex;gap:10px;align-items:center}
+  .row .grow{flex:1}
+  .hint{font-size:12.5px;color:var(--ink-3);line-height:1.7}
+  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .seg button{border:none;background:transparent;padding:7px 14px;border-radius:7px;font-size:13px;color:var(--ink-2);font-weight:600}
+  .seg button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.12)}
+  /* 颜色选择 */
+  .swatches{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  .swatch{
+    width:32px;height:32px;border-radius:10px;border:3px solid transparent;cursor:pointer;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+  }
+  .swatch.active{border-color:#3A3A3A;box-shadow:0 0 0 2px #fff inset,inset 0 0 0 1px rgba(0,0,0,.06)}
+  .swatch.custom{width:32px;height:32px;padding:0;border:1px dashed var(--line);border-radius:10px;background:conic-gradient(#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .swatch.custom input{width:100%;height:100%;border:none;padding:0;cursor:pointer;opacity:0}
+  .swatch.custom span{position:absolute;font-size:10px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+  /* 分类管理列表 */
+  .cat-row{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:var(--bg)}
+  .cat-row .c-color{width:30px;height:30px;border-radius:8px;border:none;padding:0;cursor:pointer;flex:none}
+  .cat-row .c-name{flex:1;height:36px;padding:0 10px;border:1px solid transparent;border-radius:8px;background:transparent;font-weight:600}
+  .cat-row .c-name:hover{border-color:var(--line);background:var(--surface)}
+  .cat-row .c-name:focus{outline:none;border-color:var(--primary);background:var(--surface)}
+  .cat-row .c-count{font-size:12px;color:var(--ink-3);flex:none;min-width:44px;text-align:right}
+  /* ===== Toast ===== */
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#1F2933;color:#fff;font-size:13.5px;padding:11px 20px;border-radius:12px;
+    opacity:0;pointer-events:none;transition:all .25s;z-index:90;box-shadow:0 10px 30px rgba(15,23,42,.3);
+    display:flex;align-items:center;gap:8px;max-width:88vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  /* 编辑模式完成按钮（右下角，避免与居中 toast 重叠） */
+  .fixed-done{
+    position:fixed;right:24px;bottom:24px;z-index:70;
+    box-shadow:0 10px 30px rgba(15,23,42,.28);
+  }
+  /* ===== 密码锁屏 ===== */
+  .lock{
+    position:fixed;inset:0;z-index:200;
+    background:var(--bg);
+    display:none;align-items:center;justify-content:center;padding:20px;
+  }
+  .lock.open{display:flex}
+  .lock-card{
+    width:100%;max-width:360px;text-align:center;
+    background:var(--surface);border:1px solid var(--line);border-radius:20px;
+    padding:34px 28px 28px;box-shadow:var(--shadow);
+  }
+  .lock-card .brand-mark{margin:0 auto 14px;width:52px;height:52px;border-radius:14px}
+  .lock-card .lock-title{font-size:18px;font-weight:800;margin-bottom:4px}
+  .lock-card .lock-sub{font-size:13px;color:var(--ink-3);margin-bottom:20px}
+  .lock-card .lock-input{
+    width:100%;height:46px;border:1px solid var(--line);border-radius:12px;
+    padding:0 14px;text-align:center;font-size:16px;letter-spacing:2px;outline:none;background:#fff;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  .lock-card .lock-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.12)}
+  .lock-card .btn{width:100%;margin-top:14px;min-height:44px}
+  /* ===== 页脚 ===== */
+  @media (max-width:640px){
+    .wrap{padding:20px 16px 56px}
+    .hero h1{font-size:24px}
+    .goods-grid{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+    .topnav button span.hide-sm{display:none}
+  }
+</style>
+</head>
+<body>
+<!-- ===== 顶栏 ===== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <nav class="topnav">
+      <button id="addLinkBtn" title="添加网站">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="hide-sm">添加网站</span>
+      </button>
+      <button id="catBtn" title="管理分类">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span class="hide-sm">分类</span>
+      </button>
+      <button id="settingsBtn" class="icon-btn-only" title="设置">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button id="lockBtn" class="icon-btn-only" title="锁定" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <!-- ===== 首页（唯一页面，直接可编辑） ===== -->
+  <section id="homeView">
+    <div class="hero">
+      <div class="clock-time num" id="clockTime">--:--:--</div>
+      <div class="clock-date num" id="clockDate"></div>
+      <div class="weather" id="weatherBox" style="display:none"><span class="dot"></span><span id="weatherText">加载天气…</span></div>
+      <form class="search-box" id="searchForm">
+        <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" type="text" placeholder="搜索…" autocomplete="off" spellcheck="false">
+        <button class="btn sm" type="submit">搜索</button>
+      </form>
+    </div>
+    <div class="announce" id="announceBar" style="display:none"><span id="announceText"></span></div>
+    <div class="section-title">
+      <h2 id="sectionTitle">网站导航</h2>
+      <div class="right">
+        <span class="count" id="linkCount"></span>
+        <button class="btn ghost sm" id="addCatBtn" style="display:none">+ 新增分类</button>
+        <button class="btn ghost sm" id="addLinkBtn2" style="display:none">+ 添加网站</button>
+      </div>
+    </div>
+    <div class="cat-bar" id="catBar"></div>
+    <div class="goods-grid" id="goodsGrid"></div>
+    <div class="empty" id="goodsEmpty" style="display:none">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      <strong>还没有网站</strong>
+      <p>点击右上角「添加网站」开始收录，或点「分类」建分类。</p>
+    </div>
+  </section>
+</main>
+<!-- ===== 网站表单弹层 ===== -->
+<div class="mask" id="linkMask">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="linkModalTitle">添加网站</h3>
+      <button class="icon-btn" data-close="linkMask">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="lf-id">
+      <div class="field"><label>网站名称</label><input id="lf-name" maxlength="30" placeholder="例如：百度"></div>
+      <div class="field"><label>网址</label><input id="lf-url" placeholder="例如：https://www.baidu.com"></div>
+      <div class="field"><label>一句话描述</label><input id="lf-desc" maxlength="60" placeholder="选填，例如：中文搜索引擎"></div>
+      <div class="field">
+        <label>所属分类</label>
+        <div class="row" style="gap:8px">
+          <div class="dd grow" id="lf-cat-dd">
+            <button type="button" class="dd-trigger" id="lf-cat-trigger">
+              <span class="dd-dot" id="lf-cat-dot"></span>
+              <span class="dd-label" id="lf-cat-label">选择分类</span>
+              <svg class="dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="dd-menu" id="lf-cat-menu"></div>
+          </div>
+          <button class="btn ghost sm" id="lfManageCat">管理分类</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>卡片颜色</label>
+        <div class="swatches" id="lf-color"></div>
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:6px">
+        <button class="btn ghost sm" data-close="linkMask">取消</button>
+        <button class="btn sm" id="lf-save">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== 分类管理弹层 ===== -->
+<div class="mask" id="catMask">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>管理分类</h3>
+      <button class="icon-btn" data-close="catMask">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="hint" style="margin-bottom:12px">分类名可直接点击修改；颜色点色块更换；删除分类会连同其下网站一起删除。</p>
+      <div id="catList"></div>
+      <button class="btn ghost sm" id="catAdd" style="width:100%">+ 新增分类</button>
+      <div class="row" style="justify-content:flex-end;margin-top:16px">
+        <button class="btn sm" data-close="catMask">完成</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== 设置弹层 ===== -->
+<div class="mask" id="settingsMask">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>设置</h3>
+      <button class="icon-btn" data-close="settingsMask">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>站点名称</label><input id="s-name" maxlength="20"></div>
+      <div class="field"><label>天气城市（如：秦皇岛；留空则不显示天气）</label><input id="s-city" maxlength="20" placeholder="秦皇岛"></div>
+      <div class="field">
+        <label>搜索引擎（搜索栏使用）</label>
+        <div class="seg" id="engSeg">
+          <button type="button" data-seg="eng" data-v="bing">必应</button>
+          <button type="button" data-seg="eng" data-v="google">谷歌</button>
+          <button type="button" data-seg="eng" data-v="custom">自定义</button>
+        </div>
+        <input id="s-engurl" style="display:none;margin-top:8px" placeholder="https://www.bing.com/search?q={q}">
+        <p class="hint" style="margin-top:6px">自定义时用 {q} 代表关键词，例如 https://www.google.com/search?q={q}</p>
+      </div>
+      <div class="field"><label>公告栏内容（留空则隐藏）</label>
+        <div class="row" style="gap:8px">
+          <input id="s-ann" class="grow" placeholder="如：新增常用工具分类">
+          <div class="seg" id="annSeg">
+            <button type="button" data-seg="ann" data-v="1">开</button>
+            <button type="button" data-seg="ann" data-v="0">关</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>访问密码</label>
+        <div class="row" style="gap:8px">
+          <div class="seg" id="pwdSeg">
+            <button type="button" data-seg="pwd" data-v="1">开启</button>
+            <button type="button" data-seg="pwd" data-v="0">关闭</button>
+          </div>
+          <input id="s-pwd" class="grow" type="text" placeholder="访问密码" style="display:none" autocomplete="off">
+        </div>
+        <p class="hint" style="margin-top:6px">开启后，首次访问需输入密码；关闭则无需密码。密码仅保存在本机浏览器。</p>
+      </div>
+      <div class="field">
+        <label>数据管理</label>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn ghost sm" id="s-export">导出数据</button>
+          <button class="btn ghost sm" id="s-import-toggle">导入数据</button>
+          <button class="btn danger sm" id="s-reset">恢复示例</button>
+        </div>
+      </div>
+      <div id="importZone" style="display:none">
+        <div class="field">
+          <label>粘贴导出的 JSON 配置</label>
+          <textarea id="s-import" placeholder='{"settings":{...},"categories":[...],"links":[...]}'></textarea>
+        </div>
+        <button class="btn sm" id="s-import-apply" style="margin-bottom:14px">导入并覆盖</button>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn ghost sm" data-close="settingsMask">取消</button>
+        <button class="btn sm" id="s-save">保存设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== 密码锁屏 ===== -->
+<div class="lock" id="lockScreen">
+  <div class="lock-card">
+    <span class="brand-mark" style="display:flex;align-items:center;justify-content:center;color:#fff">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M15.2 8.8l-2 5-5 2 2-5 5-2z"/></svg>
+    </span>
+    <div class="lock-title" id="lockTitle">轻舟导航</div>
+    <div class="lock-sub">输入访问密码后进入</div>
+    <input type="password" class="lock-input" id="lockPwd" placeholder="访问密码" autocomplete="off">
+    <button class="btn" id="lockOk">进入</button>
+  </div>
+</div>
+<!-- ===== 确认弹层 ===== -->
+<div class="mask" id="confirmMask">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-body" style="text-align:center;padding:28px 24px">
+      <div class="confirm-ico">!</div>
+      <p id="confirmText" style="margin-bottom:22px;line-height:1.8;color:var(--ink-2);font-size:14px"></p>
+      <div style="display:flex;gap:10px">
+        <button class="btn ghost block" id="confirmNo" style="flex:1">取消</button>
+        <button class="btn danger block" id="confirmYes" style="flex:1">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<button class="btn fixed-done" id="editDone" style="display:none">完成编辑</button>
+<script>
+"use strict";
+/* =========================================================
+   轻舟导航 —— 个人导航站 · 单文件静态应用
+   无独立后台：首页直接编辑网站卡片；首次访问密码锁；
+   数据保存在 localStorage
+   ========================================================= */
+/* ---------- 工具 ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => p + Date.now().toString(36) + Math.floor(Math.random()*1000).toString(36);
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function openMask(m){ m.classList.add('open'); }
+function closeMask(m){ m.classList.remove('open'); }
+/* ---------- 通用确认弹窗 ---------- */
+let confirmCb = null;
+function confirmDialog(msg, cb){
+  $('#confirmText').textContent = msg;
+  confirmCb = cb;
+  openMask($('#confirmMask'));
+}
+/* ---------- 图标 ---------- */
+const IC = {
+  up:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  down:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  edit:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>'
+};
+/* ---------- 莫兰迪色板（背景, 推荐前景） ---------- */
+const MORANDI = [
+  ['#C8C3B8','#4A4742'],
+  ['#A9B7C6','#313C46'],
+  ['#A8B5A2','#37422F'],
+  ['#C9A9A6','#4A3332'],
+  ['#B9A9B6','#403240'],
+  ['#D6C3A3','#4A3C22'],
+  ['#9FB0B5','#2E3A3D'],
+  ['#C2B0A3','#4A3B2E']
+];
+/* 根据任意颜色自动计算可读前景色 */
+function fgOf(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec((hex||'').trim());
+  if(!m) return '#4A4742';
+  const n = parseInt(m[1],16);
+  const r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  return (0.299*r + 0.587*g + 0.114*b) > 150 ? '#4A4742' : '#FFFFFF';
+}
+function hostOf(u){
+  try{ return new URL(u).hostname.replace(/^www\./,''); }
+  catch(e){ return String(u||'').replace(/^https?:\/\//,'').split('/')[0]; }
+}
+/* 网站图标（favicon）：取完整 hostname（保留 www，京东/美团等需带 www 才有完整图标） */
+function favDomain(u){
+  try{ return new URL(u).hostname; }
+  catch(e){ return String(u||'').replace(/^https?:\/\//,'').split('/')[0]; }
+}
+/* favicon 候选源：icon.horse(高清) -> quickso(备用)，域名保留 www 以获得完整图标 */
+const FAV_CANDIDATES = d => [
+  'https://icon.horse/icon/' + d,
+  'https://api.quickso.cn/api/favicon/index.php?url=' + d
+];
+function favFail(el){
+  const cands = FAV_CANDIDATES(el.dataset.d);
+  const i = (parseInt(el.dataset.i||'0',10)||0) + 1;
+  if(i < cands.length){
+    el.dataset.i = i;
+    el.src = cands[i];
+  } else {
+    el.style.display = 'none';
+  }
+}
+function normUrl(u){
+  u = (u||'').trim();
+  if(!u) return '';
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  return u;
+}
+/* ---------- 数据 ---------- */
+const STORE_KEY = 'qzh_nav_v1';
+const UNLOCK_KEY = 'qzh_nav_unlocked_v1';
+function seedStore(){
+  return {
+    settings:{
+      siteName:'轻舟导航',
+      weatherCity:'秦皇岛',
+      announce:'', announceOn:false,
+      pwdEnabled:true, pwd:'admin888',
+      searchEngine:{ mode:'bing', url:'https://www.bing.com/search?q={q}' }
+    },
+    categories:[
+      { id:'c1', name:'搜索引擎', color:'#A9B7C6' },
+      { id:'c2', name:'常用工具', color:'#A8B5A2' },
+      { id:'c3', name:'开发资源', color:'#B9A9B6' },
+      { id:'c4', name:'视频音乐', color:'#C9A9A6' },
+      { id:'c5', name:'学习资讯', color:'#D6C3A3' },
+      { id:'c6', name:'购物生活', color:'#C2B0A3' }
+    ],
+    links:[
+      { id:'l01', name:'百度',     url:'https://www.baidu.com',   desc:'中文搜索引擎', cat:'c1', color:'#A9B7C6' },
+      { id:'l02', name:'必应',     url:'https://cn.bing.com',     desc:'微软搜索引擎', cat:'c1', color:'#9FB0B5' },
+      { id:'l03', name:'谷歌',     url:'https://www.google.com',  desc:'全球搜索引擎', cat:'c1', color:'#B9A9B6' },
+      { id:'l04', name:'搜狗',     url:'https://www.sogou.com',   desc:'中文搜索',     cat:'c1', color:'#D6C3A3' },
+      { id:'l05', name:'腾讯文档', url:'https://docs.qq.com',     desc:'在线协作文档', cat:'c2', color:'#A8B5A2' },
+      { id:'l06', name:'百度网盘', url:'https://pan.baidu.com',   desc:'云存储与分享', cat:'c2', color:'#C8C3B8' },
+      { id:'l07', name:'百度翻译', url:'https://fanyi.baidu.com', desc:'多语互译',     cat:'c2', color:'#C2B0A3' },
+      { id:'l08', name:'在线PS',   url:'https://www.photopea.com',desc:'免费在线修图', cat:'c2', color:'#C9A9A6' },
+      { id:'l09', name:'GitHub',   url:'https://github.com',      desc:'代码托管平台', cat:'c3', color:'#B9A9B6' },
+      { id:'l10', name:'Gitee',    url:'https://gitee.com',       desc:'国产代码托管', cat:'c3', color:'#A8B5A2' },
+      { id:'l11', name:'菜鸟教程', url:'https://www.runoob.com',  desc:'编程入门教程', cat:'c3', color:'#D6C3A3' },
+      { id:'l12', name:'MDN',      url:'https://developer.mozilla.org', desc:'Web 开发文档', cat:'c3', color:'#9FB0B5' },
+      { id:'l13', name:'哔哩哔哩', url:'https://www.bilibili.com',desc:'视频弹幕网站', cat:'c4', color:'#C9A9A6' },
+      { id:'l14', name:'网易云音乐',url:'https://music.163.com',  desc:'在线音乐',     cat:'c4', color:'#A9B7C6' },
+      { id:'l15', name:'腾讯视频', url:'https://v.qq.com',        desc:'在线视频',     cat:'c4', color:'#B9A9B6' },
+      { id:'l16', name:'知乎',     url:'https://www.zhihu.com',   desc:'问答与社区',   cat:'c5', color:'#D6C3A3' },
+      { id:'l17', name:'豆瓣',     url:'https://www.douban.com',  desc:'图书影音评分', cat:'c5', color:'#C8C3B8' },
+      { id:'l18', name:'少数派',   url:'https://sspai.com',       desc:'数字生活指南', cat:'c5', color:'#A8B5A2' },
+      { id:'l19', name:'淘宝',     url:'https://www.taobao.com',  desc:'综合购物平台', cat:'c6', color:'#C2B0A3' },
+      { id:'l20', name:'京东',     url:'https://www.jd.com',      desc:'综合购物平台', cat:'c6', color:'#C9A9A6' },
+      { id:'l21', name:'美团',     url:'https://www.meituan.com', desc:'本地生活服务', cat:'c6', color:'#A8B5A2' }
+    ]
+  };
+}
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const d = JSON.parse(raw);
+      if(d && d.categories && d.links){
+        if(!d.settings) d.settings = seedStore().settings;
+        else d.settings = Object.assign({}, seedStore().settings, d.settings);
+        return d;
+      }
+    }
+  }catch(e){}
+  return seedStore();
+}
+function saveStore(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(store));
+}
+let store = loadStore();
+let homeCat = 'all';
+let linkFormId = null;
+let linkColor = '#A9B7C6';
+/* ---------- 密码锁 ---------- */
+function needLock(){
+  return !!(store.settings.pwdEnabled && store.settings.pwd && !localStorage.getItem(UNLOCK_KEY));
+}
+function unlock(){
+  localStorage.setItem(UNLOCK_KEY, '1');
+  closeMask($('#lockScreen'));
+  $('#lockBtn').style.display = store.settings.pwdEnabled ? 'inline-flex' : 'none';
+}
+function lockNow(){
+  localStorage.removeItem(UNLOCK_KEY);
+  if(store.settings.pwdEnabled && store.settings.pwd) openMask($('#lockScreen'));
+  else unlock();
+}
+/* ---------- 分类/链接辅助 ---------- */
+const catById = id => store.categories.find(c => c.id===id);
+const catName = id => { const c = catById(id); return c ? c.name : '未分类'; };
+const linksOfCat = id => store.links.filter(l => l.cat===id);
+/* ---------- 首页渲染 ---------- */
+function renderHome(){
+  const s = store.settings;
+  const ab = $('#announceBar');
+  ab.style.display = (s.announceOn && s.announce) ? 'flex' : 'none';
+  $('#announceText').textContent = s.announce || '';
+  // 分类栏
+  const catBar = $('#catBar');
+  if(store.categories.length){
+    catBar.innerHTML = '<button class="'+(homeCat==='all'?'active':'')+'" data-cat="all">全部</button>' +
+      store.categories.map(c=>`<button class="${homeCat===c.id?'active':''}" data-cat="${esc(c.id)}"><span class="cat-dot" style="background:${esc(c.color)}"></span>${esc(c.name)}</button>`).join('');
+  } else {
+    catBar.innerHTML = '';
+  }
+  // 过滤
+  let list = store.links;
+  if(homeCat && homeCat!=='all') list = list.filter(l => l.cat===homeCat);
+  $('#linkCount').textContent = '共 ' + list.length + ' 个网站';
+  const grid = $('#goodsGrid'), empty = $('#goodsEmpty');
+  if(!list.length){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = list.map(cardHTML).join('');
+}
+function cardHTML(l){
+  const cbg = l.color || '#C8C3B8';
+  const cfg = fgOf(cbg);
+  const ch = (l.name||'?').trim().charAt(0) || '?';
+  const url = normUrl(l.url);
+  const host = hostOf(url) || '';
+  const domain = favDomain(url) || host;
+  const desc = l.desc || url;
+  const fav = domain
+    ? `<img class="favicon" data-d="${esc(domain)}" data-i="0" src="${esc(FAV_CANDIDATES(domain)[0])}" alt="" draggable="false" onerror="favFail(this)">`
+    : '';
+  const ops = editMode ? `
+    <div class="card-ops">
+      <button data-op="edit" data-id="${esc(l.id)}" title="编辑">${IC.edit}</button>
+      <button data-op="del" data-id="${esc(l.id)}" class="del" title="删除">${IC.trash}</button>
+    </div>` : '';
+  return `
+  <div class="card" data-id="${esc(l.id)}" style="--cbg:${esc(cbg)};--cfg:${cfg}">
+    <a class="card-link" href="${esc(url)}" target="_blank" rel="noopener nofollow" draggable="false" aria-label="访问 ${esc(l.name)}"></a>
+    <span class="card-char">${esc(ch)}</span>
+    <div class="card-body">
+      <span class="card-icon">
+        <span class="icon-char">${esc(ch)}</span>
+        ${fav}
+      </span>
+      <div class="card-info">
+        <div class="card-line1">
+          <span class="card-name">${esc(l.name)}</span>
+          <span class="card-tag">${esc(catName(l.cat))}</span>
+        </div>
+        <div class="card-desc">${esc(desc)}</div>
+      </div>
+    </div>
+    ${ops}
+  </div>`;
+}
+/* ---------- 网站表单 ---------- */
+function renderColorPicker(target, current){
+  const box = $(target);
+  box.innerHTML = '';
+  let active = current || MORANDI[0][0];
+  const mk = (hex, custom) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch' + (hex.toLowerCase()===active.toLowerCase() ? ' active' : '');
+    b.style.background = hex;
+    b.dataset.color = hex;
+    b.title = hex;
+    if(!custom){
+      b.onclick = ()=>{ select(hex, b); };
+    } else {
+      b.className += ' custom';
+      b.innerHTML = '<input type="color" value="'+hex+'" aria-label="自定义颜色">' + '<span>…</span>';
+      const inp = b.querySelector('input');
+      inp.onchange = ()=>{ select(inp.value, b); };
+    }
+    return b;
+  };
+  function select(hex, el){
+    active = hex;
+    $$('.swatch', box).forEach(x=>x.classList.remove('active'));
+    el.classList.add('active');
+    linkColor = hex;
+  }
+  MORANDI.forEach(m => box.appendChild(mk(m[0], false)));
+  box.appendChild(mk(active, true));
+  linkColor = active;
+}
+function openLinkForm(id){
+  linkFormId = id || null;
+  const l = id ? store.links.find(x=>x.id===id) : null;
+  $('#linkModalTitle').textContent = l ? '编辑网站' : '添加网站';
+  $('#lf-id').value = id || '';
+  $('#lf-name').value = l ? l.name : '';
+  $('#lf-url').value = l ? l.url : '';
+  $('#lf-desc').value = l ? (l.desc||'') : '';
+  linkCatId = l ? l.cat : '';
+  renderCatDD();
+  const c = catById(linkCatId);
+  renderColorPicker('#lf-color', l ? l.color : (c ? c.color : ''));
+  openMask($('#linkMask'));
+  setTimeout(()=>$('#lf-name').focus(), 60);
+}
+/* 刷新网站表单里的自定义分类下拉（编辑中新建分类后调用） */
+let linkCatId = '';
+function renderCatDD(){
+  const menu = $('#lf-cat-menu');
+  const label = $('#lf-cat-label');
+  const dot = $('#lf-cat-dot');
+  if(!store.categories.length){
+    menu.innerHTML = '<div class="dd-empty">暂无分类，点「管理分类」创建</div>';
+    label.textContent = '（暂无分类）';
+    dot.style.background = 'transparent';
+    linkCatId = '';
+    return;
+  }
+  if(!catById(linkCatId)) linkCatId = store.categories[0].id;
+  const c = catById(linkCatId);
+  label.textContent = c.name;
+  dot.style.background = c.color;
+  menu.innerHTML = store.categories.map(cat=>
+    `<button type="button" class="dd-opt${cat.id===linkCatId?' sel':''}" data-catopt="${esc(cat.id)}">
+       <span class="dd-dot" style="background:${esc(cat.color)}"></span>
+       <span>${esc(cat.name)}</span>
+       ${cat.id===linkCatId?'<svg class="check" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>':''}
+     </button>`).join('');
+}
+function saveLinkForm(){
+  const name = $('#lf-name').value.trim();
+  const url = normUrl($('#lf-url').value);
+  const desc = $('#lf-desc').value.trim();
+  const cat = linkCatId;
+  if(!name){ toast('请填写网站名称'); return; }
+  if(!url){ toast('请填写网址'); return; }
+  if(!cat){ toast('请先创建分类并选择'); return; }
+  if(linkFormId){
+    const l = store.links.find(x=>x.id===linkFormId);
+    if(l){ l.name=name; l.url=url; l.desc=desc; l.cat=cat; l.color=linkColor; }
+  } else {
+    store.links.push({ id:uid('l'), name, url, desc, cat, color:linkColor });
+  }
+  saveStore();
+  closeMask($('#linkMask'));
+  renderHome();
+  toast(linkFormId ? '已保存' : '已添加');
+}
+/* ---------- 分类管理 ---------- */
+function renderCatList(){
+  const box = $('#catList');
+  if(!store.categories.length){
+    box.innerHTML = '<p class="hint" style="text-align:center;padding:14px 0">暂无分类</p>';
+    return;
+  }
+  box.innerHTML = store.categories.map(c=>`
+    <div class="cat-row">
+      <input type="color" class="c-color" value="${esc(c.color)}" data-cid="${esc(c.id)}" title="修改分类颜色">
+      <input type="text" class="c-name" value="${esc(c.name)}" maxlength="10" data-cid="${esc(c.id)}" title="点击修改名称">
+      <span class="c-count">${linksOfCat(c.id).length} 站</span>
+      <button class="icon-btn" data-delcat="${esc(c.id)}" title="删除分类">${IC.trash}</button>
+    </div>`).join('');
+}
+function openCatModal(){
+  renderCatList();
+  openMask($('#catMask'));
+}
+/* ---------- 设置 ---------- */
+function renderSettings(){
+  const s = store.settings;
+  $('#s-name').value = s.siteName || '';
+  $('#s-city').value = s.weatherCity || '';
+  $('#s-ann').value = s.announce || '';
+  setSeg('ann', s.announceOn ? '1' : '0');
+  setSeg('pwd', s.pwdEnabled ? '1' : '0');
+  const eng = s.searchEngine || { mode:'bing', url:'https://www.bing.com/search?q={q}' };
+  setSeg('eng', eng.mode || 'bing');
+  $('#s-engurl').value = eng.url || '';
+  $('#s-engurl').style.display = (eng.mode==='custom') ? 'block' : 'none';
+  const pw = $('#s-pwd');
+  pw.style.display = s.pwdEnabled ? 'block' : 'none';
+  pw.value = s.pwd || '';
+  $('#importZone').style.display = 'none';
+  $('#s-import').value = '';
+}
+function setSeg(name, v){
+  $$('#annSeg button, #pwdSeg button, #engSeg button').forEach(b=>{
+    if(b.dataset.seg===name) b.classList.toggle('active', b.dataset.v===v);
+  });
+  if(name==='pwd'){
+    const on = v==='1';
+    const pw = $('#s-pwd');
+    pw.style.display = on ? 'block' : 'none';
+  }
+  if(name==='eng'){
+    $('#s-engurl').style.display = v==='custom' ? 'block' : 'none';
+  }
+}
+const ENG_PRESETS = {
+  bing:   'https://www.bing.com/search?q={q}',
+  google: 'https://www.google.com/search?q={q}'
+};
+function saveSettings(){
+  const s = store.settings;
+  s.siteName = $('#s-name').value.trim() || '轻舟导航';
+  s.weatherCity = $('#s-city').value.trim();
+  s.announce = $('#s-ann').value.trim();
+  s.announceOn = !!$('#annSeg button.active') && $('#annSeg button.active').dataset.v==='1';
+  const engBtn = $('#engSeg button.active');
+  const engMode = engBtn ? engBtn.dataset.v : 'bing';
+  let engUrl = ENG_PRESETS[engMode] || 'https://www.bing.com/search?q={q}';
+  if(engMode==='custom') engUrl = $('#s-engurl').value.trim() || ENG_PRESETS.bing;
+  s.searchEngine = { mode: engMode, url: engUrl };
+  const pwdOn = !!$('#pwdSeg button.active') && $('#pwdSeg button.active').dataset.v==='1';
+  s.pwdEnabled = pwdOn;
+  if(pwdOn){
+    const p = $('#s-pwd').value.trim();
+    if(!p){ toast('开启密码需填写访问密码'); return; }
+    s.pwd = p;
+    localStorage.removeItem(UNLOCK_KEY);
+  } else {
+    localStorage.removeItem(UNLOCK_KEY);
+  }
+  saveStore();
+  closeMask($('#settingsMask'));
+  applyBrand();
+  renderHome();
+  loadWeather(true);
+  $('#lockBtn').style.display = s.pwdEnabled ? 'inline-flex' : 'none';
+  toast('设置已保存');
+}
+function applyBrand(){
+  document.title = store.settings.siteName + ' · 个人导航';
+  $('#lockTitle').textContent = store.settings.siteName;
+}
+/* ---------- 实时北京时间 ---------- */
+function tickClock(){
+  const now = new Date();
+  $('#clockTime').textContent = new Intl.DateTimeFormat('zh-CN',{
+    timeZone:'Asia/Shanghai', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+  }).format(now);
+  $('#clockDate').textContent = new Intl.DateTimeFormat('zh-CN',{
+    timeZone:'Asia/Shanghai', year:'numeric', month:'long', day:'numeric', weekday:'long'
+  }).format(now);
+}
+/* ---------- 天气（Open-Meteo 免费接口，无需 Key） ---------- */
+const WMO = {
+  0:'晴',1:'基本晴朗',2:'多云',3:'阴',45:'雾',48:'雾凇',51:'小毛毛雨',53:'毛毛雨',55:'大毛毛雨',
+  56:'冻毛毛雨',57:'强冻毛毛雨',61:'小雨',63:'中雨',65:'大雨',66:'冻雨',67:'强冻雨',
+  71:'小雪',73:'中雪',75:'大雪',77:'雪粒',80:'小阵雨',81:'阵雨',82:'强阵雨',85:'阵雪',86:'强阵雪',
+  95:'雷暴',96:'雷暴伴冰雹',99:'强雷暴伴冰雹'
+};
+let weatherLoaded = false;
+function loadWeather(force){
+  const box = $('#weatherBox'), txt = $('#weatherText');
+  const city = (store.settings.weatherCity||'').trim();
+  if(!city){ box.style.display = 'none'; return; }
+  if(!force && weatherLoaded) return;   // 会话内只加载一次
+  weatherLoaded = true;
+  box.style.display = 'inline-flex';
+  txt.textContent = '天气加载中…';
+  fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(city)+'&count=1&language=zh')
+    .then(r=>r.json())
+    .then(g=>{
+      const loc = g && g.results && g.results[0];
+      if(!loc){ txt.textContent = '未找到城市「'+city+'」'; return; }
+      return fetch('https://api.open-meteo.com/v1/forecast?latitude='+loc.latitude+'&longitude='+loc.longitude+'&current=temperature_2m,relative_humidity_2m,weather_code&timezone=Asia%2FShanghai')
+        .then(r=>r.json())
+        .then(f=>{
+          const c = f.current;
+          txt.innerHTML = '<span class="w-name">'+esc(loc.name||city)+'</span> · <span class="w-temp">'+Math.round(c.temperature_2m)+'°C</span> · '+
+                          esc(WMO[c.weather_code] || '未知')+' · 湿度 '+Math.round(c.relative_humidity_2m)+'%';
+        });
+    })
+    .catch(()=>{ txt.textContent = '天气获取失败'; });
+}
+/* ---------- 导出 / 导入 / 恢复 ---------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(store, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'nav-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+  toast('已导出备份');
+}
+function importData(){
+  const text = $('#s-import').value.trim();
+  if(!text){ toast('请先粘贴 JSON'); return; }
+  let d;
+  try{ d = JSON.parse(text); }catch(e){ toast('JSON 格式有误'); return; }
+  if(!d || !Array.isArray(d.categories) || !Array.isArray(d.links)){ toast('缺少 categories / links 数组'); return; }
+  d.categories = d.categories.map(c=>({ id:String(c.id||uid('c')), name:String(c.name||'未命名'), color:String(c.color||'#A9B7C6') }));
+  d.links = d.links.map(l=>({ id:String(l.id||uid('l')), name:String(l.name||''), url:String(l.url||''), desc:String(l.desc||''), cat:String(l.cat||''), color:String(l.color||'#A9B7C6') }));
+  if(!d.settings) d.settings = seedStore().settings;
+  else d.settings = Object.assign({}, seedStore().settings, d.settings);
+  store = d;
+  homeCat = 'all';
+  saveStore();
+  closeMask($('#settingsMask'));
+  applyBrand();
+  renderHome();
+  toast('导入成功');
+}
+/* ---------- 全局事件（事件委托） ---------- */
+document.addEventListener('click', e=>{
+  const t = e.target.closest('[data-op],[data-cat],[data-delcat],[data-close],[data-seg]');
+  if(!t){ 
+    // 其它按钮
+    if(e.target.closest('#addLinkBtn') || e.target.closest('#addLinkBtn2')){ openLinkForm(null); return; }
+    if(e.target.closest('#catBtn') || e.target.closest('#addCatBtn')){ openCatModal(); return; }
+    if(e.target.closest('#settingsBtn')){ renderSettings(); openMask($('#settingsMask')); return; }
+    if(e.target.closest('#lockBtn')){ lockNow(); return; }
+    if(e.target.closest('#editDone')){ exitEditMode(); return; }
+    if(e.target.closest('#catAdd')){ store.categories.push({ id:uid('c'), name:'新分类', color:'#A9B7C6' }); saveStore(); renderCatList(); return; }
+    if(e.target.closest('#lfManageCat')){ renderCatList(); openMask($('#catMask')); return; }
+    if(e.target.closest('#lf-save')){ saveLinkForm(); return; }
+    if(e.target.closest('#s-save')){ saveSettings(); return; }
+    if(e.target.closest('#s-export')){ exportData(); return; }
+    if(e.target.closest('#s-import-toggle')){ $('#importZone').style.display = $('#importZone').style.display==='block' ? 'none' : 'block'; return; }
+    if(e.target.closest('#s-import-apply')){ importData(); return; }
+    if(e.target.closest('#s-reset')){
+      confirmDialog('恢复为示例数据？当前分类与网站将被覆盖。', ()=>{
+        store = seedStore();
+        homeCat = 'all';
+        localStorage.removeItem(UNLOCK_KEY);
+        saveStore();
+        applyBrand(); renderHome();
+        closeMask($('#settingsMask'));
+        toast('已恢复示例数据');
+      });
+      return;
+    }
+    if(e.target.closest('#lockOk')){ checkLock(); return; }
+    if(e.target.closest('#confirmNo')){ closeMask($('#confirmMask')); return; }
+    if(e.target.closest('#confirmYes')){ closeMask($('#confirmMask')); if(confirmCb) confirmCb(); return; }
+    return;
+  }
+  // 分类筛选
+  if(t.hasAttribute('data-cat')){ homeCat = t.dataset.cat; renderHome(); return; }
+  // 关闭按钮
+  if(t.hasAttribute('data-close')){
+    closeMask($('#'+t.dataset.close));
+    if(t.dataset.close==='catMask' && $('#linkMask').classList.contains('open')){
+      renderCatDD();
+      const c = catById(linkCatId);
+      if(c) renderColorPicker('#lf-color', c.color);
+    }
+    return;
+  }
+  // 分段开关
+  if(t.hasAttribute('data-seg')){ setSeg(t.dataset.seg, t.dataset.v); return; }
+  // 删除分类
+  if(t.hasAttribute('data-delcat')){
+    const c = catById(t.dataset.delcat); if(!c) return;
+    const n = linksOfCat(c.id).length;
+    confirmDialog('删除分类「'+c.name+'」？其下 '+n+' 个网站将一并删除。', ()=>{
+      store.categories = store.categories.filter(x=>x.id!==c.id);
+      store.links = store.links.filter(x=>x.cat!==c.id);
+      if(homeCat===c.id) homeCat='all';
+      saveStore(); renderCatList(); renderHome();
+      toast('分类已删除');
+    });
+    return;
+  }
+  // 卡片操作
+  if(t.hasAttribute('data-op')){
+    e.preventDefault();
+    const id = t.dataset.id;
+    const i = store.links.findIndex(x=>x.id===id);
+    if(i<0) return;
+    if(t.dataset.op==='edit'){ openLinkForm(id); return; }
+    if(t.dataset.op==='del'){
+      const l = store.links[i];
+      confirmDialog('删除网站「'+l.name+'」？', ()=>{
+        store.links.splice(i,1);
+        saveStore(); renderHome();
+        toast('已删除');
+      });
+      return;
+    }
+  }
+});
+/* 分类行内编辑（改名 / 改色） */
+document.addEventListener('change', e=>{
+  if(e.target.classList && e.target.classList.contains('c-name')){
+    const c = catById(e.target.dataset.cid); if(!c) return;
+    c.name = e.target.value.trim() || '未命名';
+    saveStore(); renderCatList(); renderHome();
+    toast('分类已改名');
+  }
+  if(e.target.classList && e.target.classList.contains('c-color')){
+    const c = catById(e.target.dataset.cid); if(!c) return;
+    c.color = e.target.value;
+    saveStore(); renderCatList(); renderHome();
+  }
+});
+/* 自定义分类下拉：展开/收起 + 选中联动默认颜色 */
+$('#lf-cat-trigger').addEventListener('click', e=>{
+  e.stopPropagation();
+  const open = $('#lf-cat-menu').classList.toggle('open');
+  $('#lf-cat-trigger').classList.toggle('open', open);
+});
+$('#lf-cat-menu').addEventListener('click', e=>{
+  const opt = e.target.closest('[data-catopt]');
+  if(!opt) return;
+  linkCatId = opt.dataset.catopt;
+  renderCatDD();
+  $('#lf-cat-menu').classList.remove('open');
+  $('#lf-cat-trigger').classList.remove('open');
+  const c = catById(linkCatId);
+  if(c) renderColorPicker('#lf-color', c.color);
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#lf-cat-dd')){
+    $('#lf-cat-menu').classList.remove('open');
+    $('#lf-cat-trigger').classList.remove('open');
+  }
+});
+/* 链接表单回车提交 */
+$('#lf-name').addEventListener('keydown', e=>{ if(e.key==='Enter') saveLinkForm(); });
+/* ---------- 搜索栏：按设置里的引擎打开新标签页搜索 ---------- */
+function doSearch(kw){
+  const eng = store.settings.searchEngine || { mode:'bing', url:'https://www.bing.com/search?q={q}' };
+  const q = encodeURIComponent(kw);
+  const url = (eng.url || 'https://www.bing.com/search?q={q}').replace('%s', q).replace('{q}', q);
+  window.open(url, '_blank', 'noopener');
+}
+$('#searchForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const kw = $('#searchInput').value.trim();
+  if(!kw) return;
+  doSearch(kw);
+  $('#searchInput').blur();
+});
+/* 密码锁 */
+function checkLock(){
+  if($('#lockPwd').value === store.settings.pwd){
+    unlock();
+    toast('欢迎回来');
+  } else {
+    toast('密码不正确');
+    $('#lockPwd').value = '';
+    $('#lockPwd').focus();
+  }
+}
+$('#lockPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') checkLock(); });
+/* 点击遮罩关闭（锁屏除外） */
+['linkMask','catMask','settingsMask','confirmMask'].forEach(id=>{
+  $('#'+id).addEventListener('click', e=>{ if(e.target===$('#'+id)) closeMask($('#'+id)); });
+});
+/* ---------- 长按 / 拖动排序（FLIP 动画）/ 编辑模式 ---------- */
+let editMode = false;
+let suppressClick = false;
+let dragState = null;
+const LONG_MS = 450;
+const DRAG_TOL = 8;
+function enterEditMode(){
+  if(editMode) return;
+  editMode = true;
+  renderHome();
+  $('#editDone').style.display = 'block';
+  toast('编辑模式：拖动卡片排序，点右上角编辑或删除');
+}
+function exitEditMode(){
+  if(!editMode) return;
+  editMode = false;
+  renderHome();
+  $('#editDone').style.display = 'none';
+}
+/* FLIP：让网格里其他卡片平滑滑到新位置 */
+function flipOthers(prevRects){
+  $$('#goodsGrid .card').forEach(c=>{
+    if(c.classList.contains('dragging')) return;
+    const p = prevRects.get(c);
+    if(!p) return;
+    const r = c.getBoundingClientRect();
+    const dx = p.left - r.left, dy = p.top - r.top;
+    if(!dx && !dy) return;
+    c.style.transition = 'none';
+    c.style.transform = `translate(${dx}px, ${dy}px)`;
+    c.getBoundingClientRect();
+    c.style.transition = 'transform .22s ease';
+    c.style.transform = '';
+    c.addEventListener('transitionend', function h(){
+      c.style.transition = '';
+      c.removeEventListener('transitionend', h);
+    });
+  });
+}
+document.addEventListener('pointerdown', e=>{
+  suppressClick = false;                     // 新手势开始，清掉上次残留（修：按钮要点好几次）
+  const card = e.target.closest('.card');
+  if(!card) return;
+  if(e.target.closest('.card-ops')) return;  // 点操作按钮不触发
+  dragState = {
+    id: card.dataset.id,
+    startX: e.clientX, startY: e.clientY,
+    moved:false, ghost:null, ph:null, offX:0, offY:0,
+    timer: setTimeout(()=>{
+      if(dragState && !dragState.moved){
+        suppressClick = true;
+        enterEditMode();
+      }
+    }, LONG_MS)
+  };
+});
+document.addEventListener('pointermove', e=>{
+  const ds = dragState;
+  if(!ds) return;
+  const dx = e.clientX - ds.startX, dy = e.clientY - ds.startY;
+  if(!ds.moved && Math.hypot(dx,dy) > DRAG_TOL){
+    ds.moved = true;
+    clearTimeout(ds.timer);
+    suppressClick = true;
+    beginDrag(ds, e);
+  }
+  if(ds.moved && ds.ghost){
+    ds.ghost.style.transform = `translate(${e.clientX - ds.offX}px, ${e.clientY - ds.offY}px)`;
+    reorderAt(ds, e.clientX, e.clientY);
+  }
+});
+/* 开始拖拽：抽出幽灵卡片（固定定位跟随指针）+ 原位置留静态占位（不参与排序） */
+function beginDrag(ds, e){
+  const card = $('.card[data-id="'+ds.id+'"]');
+  if(!card) return;
+  const rect = card.getBoundingClientRect();
+  const ph = document.createElement('div');
+  ph.className = 'card-ph';
+  ph.style.width = rect.width+'px';
+  ph.style.height = rect.height+'px';
+  card.parentNode.insertBefore(ph, card);
+  card.classList.add('dragging');
+  card.style.position='fixed';
+  card.style.left='0'; card.style.top='0';
+  card.style.width=rect.width+'px'; card.style.height=rect.height+'px';
+  card.style.margin='0'; card.style.zIndex='60';
+  card.style.transition='transform .12s ease';
+  document.body.appendChild(card);
+  ds.ghost = card;
+  ds.ph = ph;
+  ds.offX = e.clientX - rect.left;
+  ds.offY = e.clientY - rect.top;
+  card.style.transform = `translate(${e.clientX - ds.offX}px, ${e.clientY - ds.offY}px)`;
+}
+/* 拖动中：只根据指针计算目标插入位置并高亮（不移动 DOM，杜绝闪烁） */
+function reorderAt(ds, x, y){
+  const grid = $('#goodsGrid');
+  const ph = ds.ph;
+  const cards = $$('#goodsGrid .card');
+  if(!cards.length) return;
+  const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+  // 用指针位置找最近卡片（行优先：优先同一行，避免跨行跳变）
+  let best = Infinity, idx = 0;
+  cards.forEach((c, i)=>{
+    const r = c.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const dy = Math.abs(cy - y), dx = Math.abs(cx - x);
+    const score = cols<=1 ? dy : (dy*2.5 + dx);
+    if(score < best){ best = score; idx = i; }
+  });
+  const r = cards[idx].getBoundingClientRect();
+  const before = cols<=1 ? (y < r.top + r.height/2) : (x < r.left + r.width/2);
+  const next = before ? cards[idx] : cards[idx].nextSibling;
+  if(ph.nextSibling === next) return;   // 占位格已在目标位置，跳过（避免反复插入闪烁）
+  const prev = new Map();
+  $$('#goodsGrid .card').forEach(c=>prev.set(c, c.getBoundingClientRect()));
+  grid.insertBefore(ph, next);
+  flipOthers(prev);
+}
+function endDragGesture(){
+  const ds = dragState;
+  if(!ds) return;
+  clearTimeout(ds.timer);
+  if(ds.moved && ds.ghost){
+    const g = ds.ghost, ph = ds.ph;
+    const prev = new Map();
+    $$('#goodsGrid .card').forEach(c=>prev.set(c, c.getBoundingClientRect()));
+    ph.parentNode.replaceChild(g, ph);
+    g.classList.remove('dragging');
+    ['position','left','top','width','height','margin','zIndex','transition','transform'].forEach(p=>g.style.removeProperty(p));
+    // 以 DOM 顺序同步数据
+    const order = $$('#goodsGrid .card').map(el=>el.dataset.id)
+      .map(id=>store.links.find(l=>l.id===id)).filter(Boolean);
+    if(order.length) store.links = order;
+    saveStore();
+    flipOthers(prev);
+  }
+  dragState = null;
+}
+document.addEventListener('pointerup', endDragGesture);
+document.addEventListener('pointercancel', endDragGesture);
+/* 手势结束后抑制随之而来的点击（避免误开链接） */
+document.addEventListener('click', e=>{
+  if(suppressClick){ suppressClick = false; e.preventDefault(); e.stopPropagation(); return; }
+  if(editMode && e.target.closest('.card') && !e.target.closest('.card-ops')){
+    e.preventDefault(); e.stopPropagation();
+  }
+}, true);
+/* 长按时不弹系统菜单 / 移动端长按不弹右键 */
+document.addEventListener('contextmenu', e=>{
+  if(e.target.closest('.card')) e.preventDefault();
+});
+/* 编辑模式按 Esc 退出 */
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && editMode) exitEditMode();
+});
+/* ---------- 启动 ---------- */
+applyBrand();
+renderHome();
+tickClock();
+setInterval(tickClock, 1000);
+loadWeather();
+if(needLock()){
+  openMask($('#lockScreen'));
+  setTimeout(()=>$('#lockPwd').focus(), 60);
+} else {
+  $('#lockBtn').style.display = store.settings.pwdEnabled ? 'inline-flex' : 'none';
+}
+</script>
+</body>
+</html>
