@@ -22,10 +22,36 @@
     --success:#7A8B7D;
     --danger:#B36B62;
     --radius:16px;
-    --shadow:0 1px 2px rgba(59,58,54,.05),0 10px 28px -14px rgba(59,58,54,.16);
+    --shadow:0 1px 3px rgba(59,58,54,.08);
     --font:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
   }
+  /* ===== 夜间模式（自动/手动切换） ===== */
+  html[data-theme="dark"]{
+    --bg:#1B1A17;
+    --surface:#262420;
+    --surface-2:#2F2D27;
+    --primary:#8FA094;
+    --primary-deep:#A6B5A9;
+    --primary-soft:#333A33;
+    --ink:#E9E5DB;
+    --ink-2:#B7B1A3;
+    --ink-3:#807A6E;
+    --line:#3C3930;
+    --success:#8FA094;
+    --danger:#D08A80;
+    --shadow:0 1px 3px rgba(0,0,0,.35);
+  }
   *{box-sizing:border-box;margin:0;padding:0}
+  /* ===== 全局滚动条（莫兰迪统一风格） ===== */
+  ::-webkit-scrollbar{width:7px;height:7px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{
+    background:var(--ink-3);border-radius:99px;
+    border:2px solid transparent;background-clip:content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover{background:var(--primary);border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-corner{background:transparent}
+  *{scrollbar-width:thin;scrollbar-color:var(--ink-3) transparent}
   html{-webkit-text-size-adjust:100%}
   body{
     font-family:var(--font);
@@ -73,9 +99,9 @@
   .side-cols{display:grid;grid-template-columns:1.18fr 1fr;gap:24px;margin-bottom:22px;align-items:stretch}
   /* ===== 左侧放大时钟面板 ===== */
   .clock-panel{
-    background:var(--surface);border:1px solid var(--line);border-radius:16px;
-    padding:30px 26px;box-shadow:var(--shadow);text-align:left;
-    display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+    background:transparent;border:none;border-radius:0;
+    padding:18px 26px 0;box-shadow:none;text-align:left;
+    display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;
     gap:10px;min-height:0;height:400px;
   }
   .clock-panel .clock-time{font-size:clamp(58px,8.4vw,110px);font-weight:900;letter-spacing:2px;font-variant-numeric:tabular-nums;line-height:1.05;color:var(--ink)}
@@ -89,7 +115,7 @@
   /* ===== 右侧三态卡片（待办 / 每日精选 / 番茄钟） ===== */
   .panel-card{
     background:var(--surface);border:1px solid var(--line);border-radius:16px;
-    padding:16px;box-shadow:var(--shadow);text-align:left;
+    padding:22px 16px 16px;box-shadow:none;text-align:left;
     display:flex;flex-direction:column;min-height:0;height:400px;
   }
   .panel-tabs{display:flex;gap:6px;margin-bottom:12px;flex:none;background:var(--surface-2);border-radius:12px;padding:4px}
@@ -440,6 +466,22 @@
   }
   .lock-card .lock-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(15,118,110,.12)}
   .lock-card .btn{width:100%;margin-top:14px;min-height:44px}
+  /* ===== 夜间模式硬编码颜色覆盖 ===== */
+  html[data-theme="dark"] .search-box{background:#2A2823}
+  html[data-theme="dark"] .search-box:focus-within{box-shadow:0 0 0 4px rgba(143,160,148,.18)}
+  html[data-theme="dark"] .todo-check{background:#2A2823;border-color:#807A6E}
+  html[data-theme="dark"] .lock-card .lock-input{background:#2A2823}
+  html[data-theme="dark"] .seg button.active{background:#3A372F;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  html[data-theme="dark"] .card-ops button{background:rgba(43,41,36,.94);color:var(--ink-2)}
+  html[data-theme="dark"] .card-icon{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.10)}
+  html[data-theme="dark"] .card-icon img{filter:grayscale(.28) saturate(.68) brightness(.92)}
+  html[data-theme="dark"] .icon-char{color:rgba(233,229,219,.9)}
+  html[data-theme="dark"] .card-tag{background:rgba(255,255,255,.12);color:rgba(233,229,219,.92)}
+  html[data-theme="dark"] .card-ph{background:rgba(255,255,255,.06);border-color:rgba(143,160,148,.45)}
+  html[data-theme="dark"] .cat-row{background:#1F1E1A}
+  html[data-theme="dark"] .todo-item{background:#1F1E1A}
+  html[data-theme="dark"] .toast{background:#E9E5DB;color:#1B1A17}
+  html[data-theme="dark"] *{scrollbar-color:#5A564C transparent}
   /* ===== 响应式 ===== */
   @media (max-width:860px){
     .side-cols{grid-template-columns:1fr}
@@ -486,6 +528,9 @@
       </button>
       <button id="lockBtn" class="icon-btn-only" title="锁定" style="display:none">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </button>
+      <button id="themeBtn" class="icon-btn-only" title="主题：自动">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M12 3a9 9 0 0 0 0 18"/><path d="M16 5h.01"/><path d="M19 8h.01"/><path d="M20.5 12h.01"/><path d="M19 16h.01"/><path d="M16 19h.01"/></svg>
       </button>
     </nav>
   </div>
@@ -1768,12 +1813,45 @@ $('#pomoToggle').addEventListener('click', pomoToggle);
 $('#pomoReset').addEventListener('click', pomoReset);
 $('#pomoSkip').addEventListener('click', pomoSkip);
 
+/* ---------- 主题（自动 / 夜间 / 日间） ---------- */
+const THEME_KEY = 'qzh_nav_theme_v1';
+let themeMode = localStorage.getItem(THEME_KEY) || 'auto';
+const THEME_ICONS = {
+  auto:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M12 3a9 9 0 0 0 0 18"/><path d="M16 5h.01"/><path d="M19 8h.01"/><path d="M20.5 12h.01"/><path d="M19 16h.01"/><path d="M16 19h.01"/></svg>',
+  dark:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  light:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+};
+function isNight(){
+  const h = parseInt(new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',hour12:false}).format(new Date()),10);
+  return h >= 19 || h < 6;
+}
+function effectiveTheme(){ return themeMode==='auto' ? (isNight()?'dark':'light') : themeMode; }
+function applyTheme(){
+  const eff = effectiveTheme();
+  document.documentElement.setAttribute('data-theme', eff);
+  const btn = $('#themeBtn');
+  if(btn){
+    btn.innerHTML = THEME_ICONS[themeMode] || THEME_ICONS[eff] || '';
+    const label = themeMode==='auto' ? '自动' : (themeMode==='dark' ? '夜间' : '日间');
+    btn.title = '主题：' + label + (themeMode==='auto' ? '（随昼夜自动切换）' : '');
+  }
+}
+function cycleTheme(){
+  themeMode = themeMode==='auto' ? 'dark' : (themeMode==='dark' ? 'light' : 'auto');
+  localStorage.setItem(THEME_KEY, themeMode);
+  applyTheme();
+  toast({auto:'已设为自动，随昼夜切换', dark:'已切换夜间模式', light:'已切换日间模式'}[themeMode]);
+}
+$('#themeBtn').addEventListener('click', cycleTheme);
+
 /* ---------- 启动 ---------- */
 applyBrand();
+applyTheme();
 renderHome();
 renderTodo();
 tickClock();
 setInterval(tickClock, 1000);
+setInterval(applyTheme, 60000);   // 自动模式下到点自动切换日夜
 loadWeather();
 fetchFeed();
 setPanel('feed');
